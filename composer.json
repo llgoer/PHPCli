@@ -1,0 +1,22 @@
+{
+	"name": "yanghuxiao/PHPCli",
+	"type": "library",
+	"description": "The lightest PHP CLI helper classes",
+	"keywords": ["cli", "readline"],
+	"homepage": "https://github.com/yanghuxiao/PHPCli",
+	"license": "MIT",
+	"authors": [
+		{"name": "yanghuxiao", "email": "yanghuxiao@vip.qq.com"}
+	],
+	"require": {
+		"php": ">=5.4",
+	},
+	"suggest": {
+		"readline": "The readline functions implement an interface to the GNU Readline library",
+	},
+	"autoload": {
+		"psr-4": {
+			"PHPCli\\": "/src"
+		}
+	}
+}
