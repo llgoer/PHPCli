@@ -1,5 +1,5 @@
 {
-	"name": "yanghuxiao/PHPCli",
+	"name": "yanghuxiao/phpcli",
 	"type": "library",
 	"description": "The lightest PHP CLI helper classes",
 	"keywords": ["cli", "readline"],
