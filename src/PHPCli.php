@@ -2,7 +2,7 @@
 /*!
  * PHP Cli
  * 
- * Version 0.0.1
+ * Version 0.0.2
  *
  * Portions of this code were initially from the FuelPHP Framework,
  * version 1.7.x, and used here under the MIT license they were
@@ -106,6 +106,26 @@ class PHPCli
         return static::$options;
     }
 
+    public static function getOptionString(): string
+    {
+        if (! count(static::$options))
+        {
+            return '';
+        }
+        $out = '';
+        foreach (static::$options as $name => $value)
+        {
+            // If there's a space, we need to group
+            // so it will pass correctly.
+            if (mb_strpos($value, ' ') !== false)
+            {
+                $value = '"'.$value.'"';
+            }
+            $out .= "-{$name} $value ";
+        }
+        return $out;
+    }
+
     public static function newLine(int $num = 1)
     {
         for ($i = 0; $i < $num; $i++)
@@ -145,6 +165,88 @@ class PHPCli
         $string .= $text."\033[0m";
         return $string;
     }
+
+    public static function getWidth(int $default = 80): int
+    {
+        if (static::isWindows())
+        {
+            return $default;
+        }
+        return (int)shell_exec('tput cols');
+    }
+
+    public static function getHeight(int $default = 32): int
+    {
+        if (static::isWindows())
+        {
+            return $default;
+        }
+        return (int)shell_exec('tput lines');
+    }
+
+    public static function showProgress($thisStep = 1, int $totalSteps = 10)
+    {
+        static $inProgress = false;
+        // restore cursor position when progress is continuing.
+        if ($inProgress !== false && $inProgress <= $thisStep)
+        {
+            fwrite(STDOUT, "\033[1A");
+        }
+        $inProgress = $thisStep;
+        if ($thisStep !== false)
+        {
+            // Don't allow div by zero or negative numbers....
+            $thisStep   = abs($thisStep);
+            $totalSteps = $totalSteps < 1 ? 1 : $totalSteps;
+            $percent = intval(($thisStep / $totalSteps) * 100);
+            $step    = (int)round($percent / 10);
+            // Write the progress bar
+            fwrite(STDOUT, "[\033[32m".str_repeat('#', $step).str_repeat('.', 10 - $step)."\033[0m]");
+            // Textual representation...
+            fwrite(STDOUT, sprintf(" %3d%% Complete", $percent).PHP_EOL);
+        }
+        else
+        {
+            fwrite(STDOUT, "\007");
+        }
+    }
+
+    public static function wrap(string $string = null, int $max = 0, int $pad_left = 0): string
+    {
+        if (empty($string))
+        {
+            return '';
+        }
+        if ($max == 0)
+        {
+            $max = CLI::getWidth();
+        }
+        if (CLI::getWidth() < $max)
+        {
+            $max = CLI::getWidth();
+        }
+        $max = $max - $pad_left;
+        $lines = wordwrap($string, $max);
+        if ($pad_left > 0)
+        {
+            $lines = explode(PHP_EOL, $lines);
+            $first = true;
+            array_walk($lines, function (&$line, $index) use ($max, $pad_left, &$first)
+            {
+                if ( ! $first)
+                {
+                    $line = str_repeat(" ", $pad_left).$line;
+                }
+                else
+                {
+                    $first = false;
+                }
+            });
+            $lines = implode(PHP_EOL, $lines);
+        }
+        return $lines;
+    }
+
 
     public static function clearScreen()
     {

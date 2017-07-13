@@ -54,6 +54,12 @@ $color = PHPCli::prompt('What is your favorite color?');
 $color = PHPCli::prompt('What is your favourite color?', 'white');
 $ready = PHPCli::prompt('Are you ready?', array('y','n'));
 
+// Displays a progress bar on the CLI. You must call it repeatedly to update it. Set $thisStep = false to erase the progress bar.
+for ($i=0; $i < 100; $i++) { 
+	PHPCli::showProgress($i,100);
+	sleep(1);
+}
+
 ```
 
 
